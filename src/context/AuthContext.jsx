@@ -4,45 +4,70 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AuthContext = createContext();
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+  }
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simuler un chargement
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (username, password) => {
-    setLoading(true);
-    try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // Simulation de différents rôles selon l'email
-          let role = 'etudiant';
-          
-          if (username.includes('enseignant')) {
-            role = 'enseignant';
-          } else if (username.includes('admin')) {
-            role = 'admin';
-          }
-
-          const userData = {
+    // Simulation de connexion
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        let userData = null;
+        
+        if (username === 'etudiant' && password === '123456') {
+          userData = {
             id: 1,
-            username: username,
-            email: username,
-            role: role,
-            token: 'fake-jwt-token'
+            username: 'etudiant',
+            firstName: 'Jean',
+            lastName: 'Dupont',
+            email: 'jean.dupont@est.um5.ac.ma',
+            role: 'etudiant'
           };
-          
+        } else if (username === 'enseignant' && password === '123456') {
+          userData = {
+            id: 2,
+            username: 'enseignant',
+            firstName: 'Marie',
+            lastName: 'Martin',
+            email: 'marie.martin@est.um5.ac.ma',
+            role: 'enseignant'
+          };
+        } else if (username === 'admin' && password === '123456') {
+          userData = {
+            id: 3,
+            username: 'admin',
+            firstName: 'Admin',
+            lastName: 'EST',
+            email: 'admin@est.um5.ac.ma',
+            role: 'admin'
+          };
+        }
+
+        if (userData) {
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          setLoading(false);
           resolve({ success: true, user: userData });
-        }, 1500);
-      });
-    } catch (error) {
-      setLoading(false);
-      return { success: false, error: error.message };
-    }
+        } else {
+          resolve({ success: false, error: 'Identifiants incorrects' });
+        }
+      }, 1000);
+    });
   };
 
   const logout = () => {
@@ -50,18 +75,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const value = {
     user,
     login,
     logout,
-    loading
+    loading,
+    isAuthenticated: !!user
   };
 
   return (

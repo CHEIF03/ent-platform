@@ -1,7 +1,9 @@
 // src/pages/Dashboard/Dashboard.jsx
-import React, { useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useEffect } from 'react';  // ← Ajout de useEffect
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import Sidebar from '../../components/Sidebar';  // ← UNE SEULE FOIS
+import './Dashboard.css';  // ← UNE SEULE FOIS
 import { 
   BookOpen, 
   Download, 
@@ -20,8 +22,10 @@ import {
   Bookmark,
   Star
 } from 'lucide-react';
-import Sidebar from '../../components/Sidebar';
-import './Dashboard.css';
+
+// ⚠️ SUPPRIME ces lignes en double :
+// import Sidebar from '../../components/Sidebar';
+// import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
