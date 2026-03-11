@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import './Sidebar.css';
 import { 
   Home, 
   BookOpen, 
@@ -15,16 +16,16 @@ import {
   ChevronRight,
   Calendar,
   HelpCircle,
-  FolderOpen,
-  FileText
+  FolderOpen
 } from 'lucide-react';
-import './Sidebar.css';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+
+  if (!user) return null;
 
   const handleLogout = () => {
     logout();
@@ -49,11 +50,9 @@ const Sidebar = () => {
     }
   };
 
-  if (!user) return null;
-
   return (
     <aside className={`sidebar-white ${collapsed ? 'collapsed' : ''}`}>
-      {/* Header avec logo et nom EST Salé */}
+      {/* Header */}
       <div className="sidebar-white-header">
         <div className="sidebar-white-logo-container">
           <img src="/logo.png" alt="EST Salé" className="sidebar-white-logo" />
@@ -62,16 +61,15 @@ const Sidebar = () => {
         <button 
           className="sidebar-white-toggle" 
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? 'Développer' : 'Réduire'}
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
-      {/* Profil utilisateur */}
+      {/* Profil */}
       <div className="sidebar-white-user">
         <div className="sidebar-white-avatar">
-          {user?.username?.charAt(0).toUpperCase()}
+          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
         </div>
         {!collapsed && (
           <div className="sidebar-white-user-info">
@@ -85,43 +83,41 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="sidebar-white-nav">
-        {/* Section Accueil - pour tous */}
+        {/* Accueil */}
         <div className="sidebar-white-section">
-          {!collapsed && <p className="sidebar-white-section-title">Accueil</p>}
+          {!collapsed && <p className="sidebar-white-section-title">ACCUEIL</p>}
           <button
             className={`sidebar-white-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
             onClick={() => navigate('/dashboard')}
-            title={collapsed ? 'Tableau de bord' : ''}
           >
             <Home size={18} />
             {!collapsed && <span>Tableau de bord</span>}
           </button>
         </div>
 
-        {/* Section Étudiant */}
+        {/* Étudiant */}
         {user.role === 'etudiant' && (
           <div className="sidebar-white-section">
-            {!collapsed && <p className="sidebar-white-section-title">Étudiant</p>}
+            {!collapsed && <p className="sidebar-white-section-title">ÉTUDIANT</p>}
             <button
               className={`sidebar-white-item ${location.pathname === '/courses' ? 'active' : ''}`}
               onClick={() => navigate('/courses')}
-              title={collapsed ? 'Mes cours' : ''}
             >
               <BookOpen size={18} />
               {!collapsed && <span>Mes cours</span>}
             </button>
+            
             <button
               className={`sidebar-white-item ${location.pathname === '/downloads' ? 'active' : ''}`}
               onClick={() => navigate('/downloads')}
-              title={collapsed ? 'Téléchargements' : ''}
             >
               <Download size={18} />
               {!collapsed && <span>Téléchargements</span>}
             </button>
+            
             <button
               className={`sidebar-white-item ${location.pathname === '/chat' ? 'active' : ''}`}
               onClick={() => navigate('/chat')}
-              title={collapsed ? 'Chat IA' : ''}
             >
               <MessageCircle size={18} />
               {!collapsed && <span>Chat IA</span>}
@@ -129,14 +125,13 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Section Enseignant */}
+        {/* Enseignant */}
         {user.role === 'enseignant' && (
           <div className="sidebar-white-section">
-            {!collapsed && <p className="sidebar-white-section-title">Enseignant</p>}
+            {!collapsed && <p className="sidebar-white-section-title">ENSEIGNANT</p>}
             <button
               className={`sidebar-white-item ${location.pathname === '/upload' ? 'active' : ''}`}
               onClick={() => navigate('/upload')}
-              title={collapsed ? 'Ajouter un cours' : ''}
             >
               <Upload size={18} />
               {!collapsed && <span>Ajouter un cours</span>}
@@ -144,7 +139,6 @@ const Sidebar = () => {
             <button
               className={`sidebar-white-item ${location.pathname === '/courses' ? 'active' : ''}`}
               onClick={() => navigate('/courses')}
-              title={collapsed ? 'Gérer les cours' : ''}
             >
               <BookOpen size={18} />
               {!collapsed && <span>Gérer les cours</span>}
@@ -152,7 +146,6 @@ const Sidebar = () => {
             <button
               className={`sidebar-white-item ${location.pathname === '/chat' ? 'active' : ''}`}
               onClick={() => navigate('/chat')}
-              title={collapsed ? 'Chat IA' : ''}
             >
               <MessageCircle size={18} />
               {!collapsed && <span>Chat IA</span>}
@@ -160,14 +153,13 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Section Administrateur */}
+        {/* Administrateur */}
         {user.role === 'admin' && (
           <div className="sidebar-white-section">
-            {!collapsed && <p className="sidebar-white-section-title">Administration</p>}
+            {!collapsed && <p className="sidebar-white-section-title">ADMINISTRATION</p>}
             <button
               className={`sidebar-white-item ${location.pathname === '/admin/users' ? 'active' : ''}`}
               onClick={() => navigate('/admin/users')}
-              title={collapsed ? 'Utilisateurs' : ''}
             >
               <Users size={18} />
               {!collapsed && <span>Utilisateurs</span>}
@@ -175,7 +167,6 @@ const Sidebar = () => {
             <button
               className={`sidebar-white-item ${location.pathname === '/admin/resources' ? 'active' : ''}`}
               onClick={() => navigate('/admin/resources')}
-              title={collapsed ? 'Ressources' : ''}
             >
               <FolderOpen size={18} />
               {!collapsed && <span>Ressources</span>}
@@ -183,45 +174,45 @@ const Sidebar = () => {
             <button
               className={`sidebar-white-item ${location.pathname === '/courses' ? 'active' : ''}`}
               onClick={() => navigate('/courses')}
-              title={collapsed ? 'Tous les cours' : ''}
             >
               <BookOpen size={18} />
               {!collapsed && <span>Tous les cours</span>}
             </button>
-            <button
-              className={`sidebar-white-item ${location.pathname === '/chat' ? 'active' : ''}`}
-              onClick={() => navigate('/chat')}
-              title={collapsed ? 'Chat IA' : ''}
-            >
-              <MessageCircle size={18} />
-              {!collapsed && <span>Chat IA</span>}
-            </button>
           </div>
         )}
 
-        {/* Section Générale - pour tous */}
+        {/* Général - POUR TOUS LES UTILISATEURS */}
         <div className="sidebar-white-section">
-          {!collapsed && <p className="sidebar-white-section-title">Général</p>}
+          {!collapsed && <p className="sidebar-white-section-title">GÉNÉRAL</p>}
+          
+          {/* ✅ MESSAGES - Pour tous les utilisateurs */}
+          <button
+            className={`sidebar-white-item ${location.pathname === '/messages' ? 'active' : ''}`}
+            onClick={() => navigate('/messages')}
+          >
+            <MessageCircle size={18} />
+            {!collapsed && <span>Messages</span>}
+          </button>
+          
           <button
             className={`sidebar-white-item ${location.pathname === '/calendar' ? 'active' : ''}`}
             onClick={() => navigate('/calendar')}
-            title={collapsed ? 'Calendrier' : ''}
           >
             <Calendar size={18} />
             {!collapsed && <span>Calendrier</span>}
           </button>
+          
           <button
             className={`sidebar-white-item ${location.pathname === '/settings' ? 'active' : ''}`}
             onClick={() => navigate('/settings')}
-            title={collapsed ? 'Paramètres' : ''}
           >
             <Settings size={18} />
             {!collapsed && <span>Paramètres</span>}
           </button>
+          
           <button
             className={`sidebar-white-item ${location.pathname === '/help' ? 'active' : ''}`}
             onClick={() => navigate('/help')}
-            title={collapsed ? 'Aide' : ''}
           >
             <HelpCircle size={18} />
             {!collapsed && <span>Aide</span>}
@@ -229,13 +220,9 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      {/* Bouton de déconnexion */}
+      {/* Déconnexion */}
       <div className="sidebar-white-footer">
-        <button 
-          className="sidebar-white-item logout" 
-          onClick={handleLogout}
-          title={collapsed ? 'Déconnexion' : ''}
-        >
+        <button className="sidebar-white-item logout" onClick={handleLogout}>
           <LogOut size={18} />
           {!collapsed && <span>Déconnexion</span>}
         </button>
