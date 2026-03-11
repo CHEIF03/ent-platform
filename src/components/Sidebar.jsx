@@ -16,7 +16,8 @@ import {
   ChevronRight,
   Calendar,
   HelpCircle,
-  FolderOpen
+  FolderOpen,
+  GraduationCap
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -83,7 +84,7 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="sidebar-white-nav">
-        {/* Accueil */}
+        {/* Accueil - pour tous */}
         <div className="sidebar-white-section">
           {!collapsed && <p className="sidebar-white-section-title">ACCUEIL</p>}
           <button
@@ -95,7 +96,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        {/* Étudiant */}
+        {/* ===== SECTION ÉTUDIANT ===== */}
         {user.role === 'etudiant' && (
           <div className="sidebar-white-section">
             {!collapsed && <p className="sidebar-white-section-title">ÉTUDIANT</p>}
@@ -125,10 +126,20 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Enseignant */}
+        {/* ===== SECTION ENSEIGNANT ===== */}
         {user.role === 'enseignant' && (
           <div className="sidebar-white-section">
             {!collapsed && <p className="sidebar-white-section-title">ENSEIGNANT</p>}
+            
+            {/* ✅ LIEN VERS LA PAGE DE GESTION DES COURS */}
+            <button
+              className={`sidebar-white-item ${location.pathname === '/teacher/courses' ? 'active' : ''}`}
+              onClick={() => navigate('/teacher/courses')}
+            >
+              <GraduationCap size={18} />
+              {!collapsed && <span>Gérer les cours</span>}
+            </button>
+            
             <button
               className={`sidebar-white-item ${location.pathname === '/upload' ? 'active' : ''}`}
               onClick={() => navigate('/upload')}
@@ -136,13 +147,7 @@ const Sidebar = () => {
               <Upload size={18} />
               {!collapsed && <span>Ajouter un cours</span>}
             </button>
-            <button
-              className={`sidebar-white-item ${location.pathname === '/courses' ? 'active' : ''}`}
-              onClick={() => navigate('/courses')}
-            >
-              <BookOpen size={18} />
-              {!collapsed && <span>Gérer les cours</span>}
-            </button>
+            
             <button
               className={`sidebar-white-item ${location.pathname === '/chat' ? 'active' : ''}`}
               onClick={() => navigate('/chat')}
@@ -153,7 +158,7 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Administrateur */}
+        {/* ===== SECTION ADMINISTRATEUR ===== */}
         {user.role === 'admin' && (
           <div className="sidebar-white-section">
             {!collapsed && <p className="sidebar-white-section-title">ADMINISTRATION</p>}
@@ -181,11 +186,10 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Général - POUR TOUS LES UTILISATEURS */}
+        {/* ===== SECTION GÉNÉRALE - POUR TOUS ===== */}
         <div className="sidebar-white-section">
           {!collapsed && <p className="sidebar-white-section-title">GÉNÉRAL</p>}
           
-          {/* ✅ MESSAGES - Pour tous les utilisateurs */}
           <button
             className={`sidebar-white-item ${location.pathname === '/messages' ? 'active' : ''}`}
             onClick={() => navigate('/messages')}

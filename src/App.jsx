@@ -19,6 +19,9 @@ import Calendar from './pages/Calendar/Calendar';
 import Help from './pages/Help/Help';
 import Messages from './pages/Messages/Messages';
 
+// ===== PAGES ENSEIGNANT =====
+import TeacherCourses from './pages/TeacherCourses/TeacherCourses';  // ✅ NOUVELLE PAGE
+
 // ===== PAGES ADMIN =====
 import AdminUsers from './pages/Admin/Users';
 import AdminResources from './pages/Admin/Resources';
@@ -49,7 +52,7 @@ function App() {
             } 
           />
 
-          {/* Gestion des cours */}
+          {/* Cours (consultation pour étudiants, gestion pour enseignants) */}
           <Route 
             path="/courses" 
             element={
@@ -123,7 +126,17 @@ function App() {
           {/* 3. ROUTES ENSEIGNANT UNIQUEMENT */}
           {/* ============================= */}
           
-          {/* Upload de cours (réservé aux enseignants) */}
+          {/* ✅ PAGE DE GESTION DES COURS POUR ENSEIGNANT */}
+          <Route 
+            path="/teacher/courses" 
+            element={
+              <ProtectedRoute requiredRole="enseignant">
+                <TeacherCourses />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Upload de cours (ajout) */}
           <Route 
             path="/upload" 
             element={
@@ -157,7 +170,7 @@ function App() {
             } 
           />
 
-          {/* Édition de ressource (sous-route) */}
+          {/* Édition de ressource */}
           <Route 
             path="/admin/resources/edit/:id" 
             element={

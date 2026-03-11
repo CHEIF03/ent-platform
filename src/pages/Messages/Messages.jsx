@@ -14,7 +14,10 @@ import {
   CheckCheck,
   Clock,
   Info,
-  X
+  X,
+  Bot,
+  Sparkles,
+  Filter
 } from 'lucide-react';
 import './Messages.css';
 
@@ -26,11 +29,13 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
   const [showMobileList, setShowMobileList] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
-  const [onlineUsers, setOnlineUsers] = useState([101, 102]); // IDs des utilisateurs en ligne
+  const [onlineUsers, setOnlineUsers] = useState([101, 102]);
 
   // Déterminer le rôle
   const isTeacher = user?.role === 'enseignant';
@@ -40,7 +45,6 @@ const Messages = () => {
   // Charger les conversations (simulées)
   useEffect(() => {
     setTimeout(() => {
-      // Conversations simulées
       const mockConversations = [
         {
           id: 1,
@@ -77,6 +81,30 @@ const Messages = () => {
           lastMessageTime: '2025-03-10T18:20:00',
           unread: 1,
           online: true
+        },
+        {
+          id: 4,
+          userId: 104,
+          name: 'Sara El Fassi',
+          role: 'etudiant',
+          department: 'Réseaux',
+          avatar: '👩‍🎓',
+          lastMessage: 'Quand aura lieu la prochaine séance de TP ?',
+          lastMessageTime: '2025-03-10T14:45:00',
+          unread: 0,
+          online: false
+        },
+        {
+          id: 5,
+          userId: 105,
+          name: 'Dr. Karim Bennani',
+          role: 'enseignant',
+          department: 'Génie Électrique',
+          avatar: '👨‍🏫',
+          lastMessage: 'Le laboratoire sera fermé demain',
+          lastMessageTime: '2025-03-09T16:30:00',
+          unread: 3,
+          online: true
         }
       ];
 
@@ -93,12 +121,20 @@ const Messages = () => {
     }, 1000);
   }, [isTeacher, isStudent]);
 
+  // Effet pour l'indicateur de recherche
+  useEffect(() => {
+    if (searchTerm) {
+      setIsSearching(true);
+      const timer = setTimeout(() => setIsSearching(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm]);
+
   // Charger les messages d'une conversation
   const loadMessages = (conversationId) => {
     setLoading(true);
     
     setTimeout(() => {
-      // Messages simulés
       const mockMessages = [
         {
           id: 1,
@@ -140,12 +176,23 @@ const Messages = () => {
       setMessages(mockMessages.filter(m => m.conversationId === conversationId));
       setLoading(false);
       
-      // Marquer comme lu
       setConversations(prev => prev.map(c => 
         c.id === conversationId ? { ...c, unread: 0 } : c
       ));
     }, 500);
   };
+
+  // Filtrer les conversations
+  const filteredConversations = conversations.filter(conv => {
+    const matchesSearch = 
+      conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      conv.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      conv.lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = filterRole === 'all' || conv.role === filterRole;
+    
+    return matchesSearch && matchesRole;
+  });
 
   // Sélectionner une conversation
   const handleSelectConversation = (conversation) => {
@@ -174,7 +221,6 @@ const Messages = () => {
     setMessages([...messages, newMsg]);
     setNewMessage('');
 
-    // Simuler l'envoi
     setTimeout(() => {
       setMessages(prev => prev.map(m => 
         m.id === newMsg.id ? { ...m, status: 'sent' } : m
@@ -187,7 +233,6 @@ const Messages = () => {
       }, 1000);
     }, 500);
 
-    // Mettre à jour la dernière conversation
     setConversations(prev => prev.map(c => 
       c.id === selectedConversation.id 
         ? { ...c, lastMessage: newMessage, lastMessageTime: new Date().toISOString() }
@@ -220,15 +265,6 @@ const Messages = () => {
     };
 
     setMessages([...messages, newMsg]);
-
-    // Simuler l'envoi du fichier
-    setTimeout(() => {
-      setMessages(prev => prev.map(m => 
-        m.id === newMsg.id ? { ...m, status: 'sent' } : m
-      ));
-    }, 1000);
-
-    // Réinitialiser l'input file
     event.target.value = '';
   };
 
@@ -237,7 +273,6 @@ const Messages = () => {
     const file = event.target.files[0];
     if (!file || !selectedConversation) return;
 
-    // Créer une URL pour prévisualisation
     const imageUrl = URL.createObjectURL(file);
 
     const newMsg = {
@@ -261,15 +296,6 @@ const Messages = () => {
     };
 
     setMessages([...messages, newMsg]);
-
-    // Simuler l'envoi
-    setTimeout(() => {
-      setMessages(prev => prev.map(m => 
-        m.id === newMsg.id ? { ...m, status: 'sent' } : m
-      ));
-    }, 1000);
-
-    // Réinitialiser l'input file
     event.target.value = '';
   };
 
@@ -328,16 +354,10 @@ const Messages = () => {
     return groups;
   };
 
-  // Auto-scroll vers le bas
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Filtrer les conversations
-  const filteredConversations = conversations.filter(conv =>
-    conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.department.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (loading && conversations.length === 0) {
     return (
@@ -370,20 +390,67 @@ const Messages = () => {
               </div>
             </div>
 
-            <div className="search-box">
-              <Search size={18} className="search-icon" />
-              <input
-                type="text"
-                placeholder="Rechercher une conversation..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            {/* ===== SECTION DE RECHERCHE AMÉLIORÉE ===== */}
+            <div className="search-section">
+              <div className="search-box">
+                <Search size={18} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Rechercher une conversation par nom, département..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                {searchTerm && (
+                  <button 
+                    className="clear-search"
+                    onClick={() => setSearchTerm('')}
+                    title="Effacer la recherche"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+                {isSearching && <span className="searching-indicator">🔍</span>}
+              </div>
+              
+              {/* Filtres par rôle */}
+              <div className="search-filters">
+                <button 
+                  className={`filter-chip ${filterRole === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilterRole('all')}
+                >
+                  Tous
+                </button>
+                <button 
+                  className={`filter-chip ${filterRole === 'etudiant' ? 'active' : ''}`}
+                  onClick={() => setFilterRole('etudiant')}
+                >
+                  Étudiants
+                </button>
+                <button 
+                  className={`filter-chip ${filterRole === 'enseignant' ? 'active' : ''}`}
+                  onClick={() => setFilterRole('enseignant')}
+                >
+                  Enseignants
+                </button>
+              </div>
             </div>
 
+            {/* Résultats de recherche */}
+            {searchTerm && (
+              <div className="search-results-info">
+                <p>
+                  <span className="result-count">{filteredConversations.length}</span> conversation(s) trouvée(s)
+                  {filteredConversations.length === 0 && " - Aucun résultat"}
+                </p>
+              </div>
+            )}
+
+            {/* Liste des conversations filtrées */}
             <div className="conversations">
               {filteredConversations.length === 0 ? (
-                <div className="no-conversations">
-                  <p>Aucune conversation</p>
+                <div className="no-results">
+                  <p>Aucune conversation trouvée</p>
                 </div>
               ) : (
                 filteredConversations.map(conv => (
@@ -422,7 +489,6 @@ const Messages = () => {
           <div className={`chat-area ${!showMobileList ? 'active' : ''}`}>
             {selectedConversation ? (
               <>
-                {/* En-tête du chat - SIMPLIFIÉ sans appels */}
                 <div className="chat-header">
                   <button 
                     className="back-button"
@@ -452,7 +518,6 @@ const Messages = () => {
                   </div>
                 </div>
 
-                {/* Messages */}
                 <div className="messages-list">
                   {groupMessagesByDate().map((item, index) => {
                     if (item.type === 'date') {
@@ -482,7 +547,6 @@ const Messages = () => {
                             <div className="message-bubble">
                               <p>{message.content}</p>
                               
-                              {/* Affichage des pièces jointes */}
                               {message.attachments.length > 0 && (
                                 <div className="message-attachments">
                                   {message.attachments.map((att, idx) => (
@@ -533,9 +597,7 @@ const Messages = () => {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Zone de saisie - AVEC UPLOAD FONCTIONNEL */}
                 <form onSubmit={handleSendMessage} className="message-input-area">
-                  {/* Upload de fichier caché */}
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -543,7 +605,6 @@ const Messages = () => {
                     style={{ display: 'none' }}
                   />
                   
-                  {/* Upload d'image caché */}
                   <input
                     type="file"
                     ref={imageInputRef}
@@ -552,7 +613,6 @@ const Messages = () => {
                     style={{ display: 'none' }}
                   />
 
-                  {/* Bouton pour uploader un fichier */}
                   <button 
                     type="button" 
                     className="attach-button"
@@ -562,7 +622,6 @@ const Messages = () => {
                     <Paperclip size={20} />
                   </button>
 
-                  {/* Bouton pour uploader une image */}
                   <button 
                     type="button" 
                     className="attach-button"
